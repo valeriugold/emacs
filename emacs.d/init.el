@@ -208,8 +208,12 @@
 (global-set-key (kbd "C-<prior>") 'scroll-down-keep-cursor) 
 (global-set-key (kbd "C-<next>") 'scroll-up-keep-cursor) 
 
-(if (file-readable-p "C:\\cygwin\\bin\\myfind.exe")
-    (setq grep-command "myfind ./ | grep -v \"\\.svn/\\|/doc/\\|/vc/\\|/doxy\\|~$\\|#$\" | xargs grep -n "))
+; set correct path to find/grep on windows with cygwin
+(when (or (eq system-type 'windows-nt) (eq system-type 'msdos))
+  (setenv "PATH" (concat "c:\\cygwin\\bin;" (getenv "PATH")))
+  (setq find-program "c:\\cygwin\\bin\\find.exe"))
+
+(setq grep-command "find ./ | grep -v \"\\.svn/\\|/doc/\\|/vc/\\|/doxy\\|~$\\|#$\" | xargs grep -n ")
 
 ;prevent emacs from spliting windows by itself
 (setq split-height-threshold nil
@@ -421,114 +425,114 @@ refer for `sh-mode'.  It is automatically added to
 
 (package-initialize)
 
-;;; ;; http://gnuemacscolorthemetest.googlecode.com/svn/html/index-el.html
-;;; ;; Set my favorite color theme
-;;; (dolist (package `(color-theme))
-;;;  (require 'color-theme)
-;;;  (color-theme-initialize)
-;;;  (color-theme-xemacs)
-;;;  ;(color-theme-ramangalahy)
-;;; )
-;;; (put 'upcase-region 'disabled nil)
+;; http://gnuemacscolorthemetest.googlecode.com/svn/html/index-el.html
+;; Set my favorite color theme
+(dolist (package `(color-theme))
+ (require 'color-theme)
+ (color-theme-initialize)
+ (color-theme-xemacs)
+ ;(color-theme-ramangalahy)
+)
+(put 'upcase-region 'disabled nil)
 
-; ;; to build gtags DB, run gtags
-; ;; load, use GNU global; gtags-pop-stack's shorcut doesn't work in
-; ;; gtags selection buffer
-; (setq load-path (cons "~/../bin/global/share/gtags" load-path))
-; (autoload 'gtags-mode "gtags" "" t)
-; 
-; (defun djcb-gtags-create-or-update ()
-;   "create or update the gnu global tag file"
-;   (interactive)
-;   (if (not (= 0 (call-process "global" nil nil nil " -p"))) ; tagfile doesn't exist?
-;     (let ((olddir default-directory)
-;           (topdir (read-directory-name  
-;                     "gtags: top of source tree:" default-directory)))
-;       (cd topdir)
-;       (shell-command "gtags && echo 'created tagfile'")
-;       (cd olddir)) ; restore   
-;     ;;  tagfile already exists; update it
-;     (shell-command "global -u && echo 'updated tagfile'")))
-; 
-; (add-hook 'gtags-mode-hook 
-;   (lambda()
-;     (local-set-key (kbd "M-.") 'gtags-find-tag)   ; find a tag, also M-.
-;     (local-set-key (kbd "M-*") 'gtags-pop-stack)   ; find a tag, also M-.
-;     (local-set-key (kbd "M-,") 'gtags-find-rtag)))  ; reverse tag
-; 
-; (add-hook 'gtags-select-mode-hook
-;   (lambda()
-;     (local-set-key (kbd "M-*") 'gtags-pop-stack)))   ; find a tag, also M-.
-; 
-; ;; (add-hook 'c-mode-common-hook
-; ;;   (lambda ()
-; ;;     (require 'gtags)
-; ;;     (gtags-mode t)
-; ;;     (djcb-gtags-create-or-update)))
-; 
-; ;;; http://www.gnu.org/software/global/globaldoc_toc.html#Applications
-; ;;; set gtags for c-mode
-; ;; (setq c-mode-hook
-; ;;          '(lambda ()
-; ;;              (gtags-mode 1)
-; ;;      ))
-; 
-; ;; installed package auto-complete
-; ; start auto-complete with emacs
-; (require 'auto-complete)
-; ; perform default config for auto-complete
-; (require 'auto-complete-config)
-; (ac-config-default)
-; 
-; ;; installed package yasnippet
-; (require 'yasnippet)
-; (yas-global-mode 1)
-; 
-; ;; installed iedit
-; ;; with iedit-mode you can modify all ocurrence of a variable at the same time
-; 
-; ;; installed flymake-google-cpplint-load
-; ;; copied cpplint
-; ; start flymake-google-cpplint-load
-; ; let's define a function for flymake initialization
-; (defun my:flymake-google-init ()
-;   (require 'flymake-google-cpplint)
-;   (custom-set-variables
-;     ;; '(flymake-google-cpplint-verbose "30")
-;    '(flymake-google-cpplint-linelength "120")
-;    '(flymake-google-cpplint-command "c:/Python27/Scripts/cpplint.bat"))
-;    ; '(flymake-google-cpplint-command "c:/Python27/Scripts/cpplint.exe"))
-;   (flymake-google-cpplint-load)
-;   )
-; (add-hook 'c-mode-hook 'my:flymake-google-init)
-; (add-hook 'c++-mode-hook 'my:flymake-google-init)
-; 
-; ;; installed flymake-cursor - to disaply suggestions from flymake-google-cpplint
-; 
-; ;;; ; turn on Semantic
-; ;;; (semantic-mode 1)
-; ;;; ; let's define a function which adds semantic as a suggestion backend to auto complete
-; ;;; ; and hook this function to c-mode-common-hook
-; ;;; (defun my:add-semantic-to-autocomplete() 
-; ;;;   (add-to-list 'ac-sources 'ac-source-semantic)
-; ;;; )
-; ;;; (add-hook 'c-mode-common-hook 'my:add-semantic-to-autocomplete)
-; ; turn on ede mode 
-; (global-ede-mode 1)
-; 
-; ;; http://cedet.sourceforge.net/intellisense.shtml
-; ;; Start inline completion: M-x semantic-complete-analyze-inline    C-c , SPACE
-; ;; Speedbar completion mode: M-x semantic-speedbar-analysis
-; 
-; ;; ; create a project for our program.
-; ;; (ede-cpp-root-project "my project" :file "~/demos/my_program/src/main.cpp"
-; ;; 		      :include-path '("/../my_inc"))
-; ;; ; you can use system-include-path for setting up the system header file locations.
-; ;; ; turn on automatic reparsing of open buffers in semantic
-; ;; (global-semantic-idle-scheduler-mode 1)
-; 
-; 
-; ;; slow emacs... looking for solutions
-; (setq vc-handled-backends nil)
-; ; try to improve slow performance on windows.
-; (setq w32-get-true-file-attributes nil)
+;; to build gtags DB, run gtags
+;; load, use GNU global; gtags-pop-stack's shorcut doesn't work in
+;; gtags selection buffer
+(setq load-path (cons "~/../bin/global/share/gtags" load-path))
+(autoload 'gtags-mode "gtags" "" t)
+
+(defun djcb-gtags-create-or-update ()
+  "create or update the gnu global tag file"
+  (interactive)
+  (if (not (= 0 (call-process "global" nil nil nil " -p"))) ; tagfile doesn't exist?
+    (let ((olddir default-directory)
+          (topdir (read-directory-name  
+                    "gtags: top of source tree:" default-directory)))
+      (cd topdir)
+      (shell-command "gtags && echo 'created tagfile'")
+      (cd olddir)) ; restore   
+    ;;  tagfile already exists; update it
+    (shell-command "global -u && echo 'updated tagfile'")))
+
+(add-hook 'gtags-mode-hook 
+  (lambda()
+    (local-set-key (kbd "M-.") 'gtags-find-tag)   ; find a tag, also M-.
+    (local-set-key (kbd "M-*") 'gtags-pop-stack)   ; find a tag, also M-.
+    (local-set-key (kbd "M-,") 'gtags-find-rtag)))  ; reverse tag
+
+(add-hook 'gtags-select-mode-hook
+  (lambda()
+    (local-set-key (kbd "M-*") 'gtags-pop-stack)))   ; find a tag, also M-.
+
+;; (add-hook 'c-mode-common-hook
+;;   (lambda ()
+;;     (require 'gtags)
+;;     (gtags-mode t)
+;;     (djcb-gtags-create-or-update)))
+
+;;; http://www.gnu.org/software/global/globaldoc_toc.html#Applications
+;;; set gtags for c-mode
+;; (setq c-mode-hook
+;;          '(lambda ()
+;;              (gtags-mode 1)
+;;      ))
+
+;; installed package auto-complete
+; start auto-complete with emacs
+(require 'auto-complete)
+; perform default config for auto-complete
+(require 'auto-complete-config)
+(ac-config-default)
+
+;; installed package yasnippet
+(require 'yasnippet)
+(yas-global-mode 1)
+
+;; installed iedit
+;; with iedit-mode you can modify all ocurrence of a variable at the same time
+
+;; installed flymake-google-cpplint-load
+;; copied cpplint
+; start flymake-google-cpplint-load
+; let's define a function for flymake initialization
+(defun my:flymake-google-init ()
+  (require 'flymake-google-cpplint)
+  (custom-set-variables
+    ;; '(flymake-google-cpplint-verbose "30")
+   '(flymake-google-cpplint-linelength "120")
+   '(flymake-google-cpplint-command "c:/Python27/Scripts/cpplint.bat"))
+   ; '(flymake-google-cpplint-command "c:/Python27/Scripts/cpplint.exe"))
+  (flymake-google-cpplint-load)
+  )
+(add-hook 'c-mode-hook 'my:flymake-google-init)
+(add-hook 'c++-mode-hook 'my:flymake-google-init)
+
+;; installed flymake-cursor - to disaply suggestions from flymake-google-cpplint
+
+;;; ; turn on Semantic
+;;; (semantic-mode 1)
+;;; ; let's define a function which adds semantic as a suggestion backend to auto complete
+;;; ; and hook this function to c-mode-common-hook
+;;; (defun my:add-semantic-to-autocomplete() 
+;;;   (add-to-list 'ac-sources 'ac-source-semantic)
+;;; )
+;;; (add-hook 'c-mode-common-hook 'my:add-semantic-to-autocomplete)
+; turn on ede mode 
+(global-ede-mode 1)
+
+;; http://cedet.sourceforge.net/intellisense.shtml
+;; Start inline completion: M-x semantic-complete-analyze-inline    C-c , SPACE
+;; Speedbar completion mode: M-x semantic-speedbar-analysis
+
+;; ; create a project for our program.
+;; (ede-cpp-root-project "my project" :file "~/demos/my_program/src/main.cpp"
+;; 		      :include-path '("/../my_inc"))
+;; ; you can use system-include-path for setting up the system header file locations.
+;; ; turn on automatic reparsing of open buffers in semantic
+;; (global-semantic-idle-scheduler-mode 1)
+
+
+;; slow emacs... looking for solutions
+(setq vc-handled-backends nil)
+; try to improve slow performance on windows.
+(setq w32-get-true-file-attributes nil)
