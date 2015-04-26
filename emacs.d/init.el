@@ -315,24 +315,22 @@ refer for `sh-mode'.  It is automatically added to
              fume-no-prompt-on-valid-default nil)
        ))
 
-;(if (file-readable-p "~/.xemacs/selective_undo_xmas.el")
-;  (load-file "~/.xemacs/selective_undo_xmas.el"))
-(if (file-readable-p "~/.emacs.d/selective_undo_xmas.el")
-    (load-file "~/.emacs.d/selective_undo_xmas.el"))
+; (if (file-readable-p "~/.emacs.d/selective_undo_xmas.el")
+;     (load-file "~/.emacs.d/selective_undo_xmas.el"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ; macros
-(defalias 'logerr
-  (read-kbd-macro "TAB LOG_ER( S-SPC LEVEL, SPC \"Err: SPC \" SPC );"))
-(defalias 'logwar (read-kbd-macro
-"TAB LOG_EA 2*<backspace> WA( SPC level 5*<backspace> LEVEL. <backspace> , SPC \"wA 2*<backspace> w <backspace> War: SPC \" SPC );"))
-(defalias 'loginf (read-kbd-macro
-"TAB lo 2*<backspace> K <backspace> LOG_IN* <backspace> ( SPC LEVEL, SPC : <backspace> \"ING 2*<backspace> nf: SPC \" SPC _ <backspace> );"))
-(defalias 'logdbg (read-kbd-macro
-"TAB LOG_IN( SPC LEVEL10, SPC \"DEBUG: SPC \" SPC _ <backspace> );"))
+; (defalias 'logerr
+;   (read-kbd-macro "TAB LOG_ER( S-SPC LEVEL, SPC \"Err: SPC \" SPC );"))
+; (defalias 'logwar (read-kbd-macro
+; "TAB LOG_EA 2*<backspace> WA( SPC level 5*<backspace> LEVEL. <backspace> , SPC \"wA 2*<backspace> w <backspace> War: SPC \" SPC );"))
+; (defalias 'loginf (read-kbd-macro
+; "TAB lo 2*<backspace> K <backspace> LOG_IN* <backspace> ( SPC LEVEL, SPC : <backspace> \"ING 2*<backspace> nf: SPC \" SPC _ <backspace> );"))
+; (defalias 'logdbg (read-kbd-macro
+; "TAB LOG_IN( SPC LEVEL10, SPC \"DEBUG: SPC \" SPC _ <backspace> );"))
 
 (defalias 'header-shell (read-kbd-macro
 ;(concat "#!/bin/bash RET #/// SPC \\file SPC RET #/// SPC \\brief RET # RET # SPC Created SPC by SPC Valeriu SPC Goldberger SPC on SPC "
@@ -342,6 +340,31 @@ refer for `sh-mode'.  It is automatically added to
         (format-time-string "%D SPC %R" (current-time))
         " RET # RET")))
 
+(defun logerr ()
+  "insert C LOG_ERR call"
+  (interactive)
+  (indent-according-to-mode)
+  (insert "LOG_ER(LEVEL, \"Err: \");\n"))
+(defun logwar ()
+  "insert C LOG_WAR call"
+  (interactive)
+  (indent-according-to-mode)
+  (insert "LOG_WA(LEVEL, \"War: \");\n"))
+(defun loginf ()
+  "insert C LOG_INF call"
+  (interactive)
+  (indent-according-to-mode)
+  (insert "LOG_IN(LEVEL, \"Inf: \");\n"))
+(defun logdbg ()
+  "insert C LOG_INF DEBUG call"
+  (interactive)
+  (indent-according-to-mode)
+  (insert "LOG_IN(LEVEL10, \"DEBUG: \");\n"))
+(defun header-shell ()
+  "insert C LOG_ERR call"
+  (interactive)
+  (indent-according-to-mode)
+  (insert "LOG_ER(LEVEL, \"Err: \");\n"))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
