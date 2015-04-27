@@ -335,14 +335,14 @@ refer for `sh-mode'.  It is automatically added to
 ; "TAB lo 2*<backspace> K <backspace> LOG_IN* <backspace> ( SPC LEVEL, SPC : <backspace> \"ING 2*<backspace> nf: SPC \" SPC _ <backspace> );"))
 ; (defalias 'logdbg (read-kbd-macro
 ; "TAB LOG_IN( SPC LEVEL10, SPC \"DEBUG: SPC \" SPC _ <backspace> );"))
-
-(defalias 'header-shell (read-kbd-macro
-;(concat "#!/bin/bash RET #/// SPC \\file SPC RET #/// SPC \\brief RET # RET # SPC Created SPC by SPC Valeriu SPC Goldberger SPC on SPC "
-(concat "#!/bin/bash RET  RET #/// SPC \\file SPC  SPC "
-        (buffer-file-name nil)
-        "RET #/// SPC \\brief RET # RET # SPC Created SPC by SPC Valeriu SPC Goldberger SPC on SPC "
-        (format-time-string "%D SPC %R" (current-time))
-        " RET # RET")))
+; 
+; (defalias 'header-shell (read-kbd-macro
+; ;(concat "#!/bin/bash RET #/// SPC \\file SPC RET #/// SPC \\brief RET # RET # SPC Created SPC by SPC Valeriu SPC Goldberger SPC on SPC "
+; (concat "#!/bin/bash RET  RET #/// SPC \\file SPC  SPC "
+;         (buffer-file-name nil)
+;         "RET #/// SPC \\brief RET # RET # SPC Created SPC by SPC Valeriu SPC Goldberger SPC on SPC "
+;         (format-time-string "%D SPC %R" (current-time))
+;         " RET # RET")))
 
 (defun logerr ()
   "insert C LOG_ERR call"
@@ -368,7 +368,16 @@ refer for `sh-mode'.  It is automatically added to
   "insert C LOG_ERR call"
   (interactive)
   (indent-according-to-mode)
-  (insert "LOG_ER(LEVEL, \"Err: \");\n"))
+  (insert
+   (concat "#!/bin/bash
+
+#/// \\file  " (buffer-name) "
+#/// \\brief
+#
+# Created by Valeriu Goldberger on "
+           (format-time-string "%D SPC %R" (current-time))
+           "\n#\n"
+  )))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -450,12 +459,13 @@ refer for `sh-mode'.  It is automatically added to
 
 ;; http://gnuemacscolorthemetest.googlecode.com/svn/html/index-el.html
 ;; Set my favorite color theme
-(dolist (package `(color-theme))
- (require 'color-theme)
- (color-theme-initialize)
- (color-theme-xemacs)
- ;(color-theme-ramangalahy)
-)
+(unless (string-equal system-type "darwin")
+  (dolist (package `(color-theme))
+    (require 'color-theme)
+    (color-theme-initialize)
+    (color-theme-xemacs)
+    ;(color-theme-ramangalahy)
+    ))
 (put 'upcase-region 'disabled nil)
 
 ;; to build gtags DB, run gtags
@@ -513,6 +523,8 @@ refer for `sh-mode'.  It is automatically added to
 
 ;; installed iedit
 ;; with iedit-mode you can modify all ocurrence of a variable at the same time
+;; Fix iedit bug in Mac
+; (define-key global-map (kbd "C-c ;") 'iedit-mode)
 
 ;; installed flymake-google-cpplint-load
 ;; copied cpplint
@@ -522,9 +534,11 @@ refer for `sh-mode'.  It is automatically added to
   (require 'flymake-google-cpplint)
   (custom-set-variables
     ;; '(flymake-google-cpplint-verbose "30")
-   '(flymake-google-cpplint-linelength "120")
-   '(flymake-google-cpplint-command "c:/Python27/Scripts/cpplint.bat"))
-   ; '(flymake-google-cpplint-command "c:/Python27/Scripts/cpplint.exe"))
+   '(flymake-google-cpplint-linelength "120"))
+    ;; '(flymake-google-cpplint-command "c:/Python27/Scripts/cpplint.bat"))
+  (if (file-readable-p "c:/Python27/Scripts/cpplint.bat")
+      (custom-set-variables
+       '(flymake-google-cpplint-command "c:/Python27/Scripts/cpplint.bat")))
   (flymake-google-cpplint-load)
   )
 (add-hook 'c-mode-hook 'my:flymake-google-init)
