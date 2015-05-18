@@ -27,7 +27,7 @@
   (pending-delete-mode 1))
 
 ;; set default coding to unix
-(set-default buffer-file-coding-system 'utf-8-unix)
+;(set-default buffer-file-coding-system 'utf-8-unix)
 (set-default-coding-systems 'utf-8-unix)
 (prefer-coding-system 'utf-8-unix)
 (set-default default-buffer-file-coding-system 'utf-8-unix)
@@ -213,7 +213,7 @@
   (setenv "PATH" (concat "c:\\cygwin\\bin;" (getenv "PATH")))
   (setq find-program "c:\\cygwin\\bin\\find.exe"))
 
-(setq grep-command "find ./ | grep -v \"\\.svn/\\|/doc/\\|/vc/\\|/doxy\\|~$\\|#$\" | xargs grep -n ")
+(setq grep-command "find ./ | grep -v \"\\.svn/\\|.git/\\|/doc/\\|/vc/\\|/doxy\\|~$\\|#$\" | xargs grep -n ")
 
 ;prevent emacs from spliting windows by itself
 (setq split-height-threshold nil
@@ -573,3 +573,5 @@ refer for `sh-mode'.  It is automatically added to
 (setq vc-handled-backends nil)
 ; try to improve slow performance on windows.
 (setq w32-get-true-file-attributes nil)
+
+(setq mac-command-modifier 'meta)
