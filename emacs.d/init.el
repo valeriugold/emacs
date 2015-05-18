@@ -379,6 +379,20 @@ refer for `sh-mode'.  It is automatically added to
            "\n#\n"
   )))
 
+(defun vg-setter-c (fctName varName varType)
+  "…"
+  (interactive "sEnter function's name: \nsEnter variable name: \nsEnter variable type(int|char):")
+  (message "Fct name: %s, Var name is: %s, Typeis %s" fctName varName varType)
+  (insert "void " fctName "(")
+  (if (string= varType "int")
+      (insert "int " varName)
+    (insert "const char *"))
+  (insert " x) {\n    ")
+  (if (string= varType "int")
+      (insert varName " = x;\n")
+      (insert "strncpy(" varName ", x, sizeof(" varName ");\n"))
+  (insert "}\n"))
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -573,3 +587,13 @@ refer for `sh-mode'.  It is automatically added to
 (setq vc-handled-backends nil)
 ; try to improve slow performance on windows.
 (setq w32-get-true-file-attributes nil)
+
+; macro to apply google style over ValG style.
+
+(fset 'vapply-google-style
+      (lambda (&optional arg) "Keyboard macro." (interactive "p")
+        (kmacro-exec-ring-item (quote ([201326629 40 32 43 return 40 return 33 134217788 201326629 32 43 41 return 41 return 33 134217788 134217765 32 105 102 40 return 32 105 102 32 40 return 33 134217788 201326629 32 119 104 105 108 101 40 return 32 119 104 105 108 101 32 40 return 33 134217788 201326629 32 102 111 114 40 return 32 102 111 114 32 40 return 33 134217788 201326629 32 115 119 105 116 99 104 40 return 32 115 119 105 116 99 104 32 40 return 33 134217788 201326629 92 40 94 32 42 91 94 47 32 93 46 42 92 41 17 10 32 42 123 17 10 return 92 49 32 123 17 10 return 33 134217788] 0 "%d")) arg)))
+; problem: if { follows a line with comment, it moves it at the end of the comment
+;(fset 'vapply-google-style
+;      (lambda (&optional arg) "Keyboard macro." (interactive "p")
+;        (kmacro-exec-ring-item (quote ([201326629 40 32 43 return 40 return 33 134217788 201326629 32 43 41 return 41 return 33 134217788 134217765 32 105 102 40 return 32 105 102 32 40 return 33 134217788 201326629 32 119 104 105 108 101 40 return 32 119 104 105 108 101 32 40 return 33 134217788 201326629 32 102 111 114 40 return 32 102 111 114 32 40 return 33 134217788 201326629 32 115 119 105 116 99 104 40 return 32 115 119 105 116 99 104 32 40 return 33 134217788 201326629 17 10 32 42 123 17 10 return 32 123 17 10 return 33 134217788] 0 "%d")) arg)))
