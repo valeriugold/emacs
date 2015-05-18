@@ -1,7 +1,7 @@
 (setq GNU (not (string-match "XEmacs\\|Lucid" (emacs-version))))
 (unless (boundp 'running-xemacs)
   (defvar running-xemacs nil))
-;(if GNU 
+;(if GNU
 ;    (do-emacs-thing)
 ;  (do-xemacs-thing))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -22,12 +22,12 @@
 (setq column-number-mode t)
 (set-default 'truncate-lines t)
 
-(if GNU 
+(if GNU
     (delete-selection-mode 1)
   (pending-delete-mode 1))
 
 ;; set default coding to unix
-(set-default buffer-file-coding-system 'utf-8-unix)
+;(set-default buffer-file-coding-system 'utf-8-unix)
 (set-default-coding-systems 'utf-8-unix)
 (prefer-coding-system 'utf-8-unix)
 (set-default default-buffer-file-coding-system 'utf-8-unix)
@@ -87,7 +87,7 @@
   (let (cpbuffer (current-buffer))
     (switch-to-buffer insbuffer)
     (goto-char inspoint)
-    (message "Copy to dest") 
+    (message "Copy to dest")
     (insert-buffer-substring srcbuffer start end)))
 
 (defun val-dup-line ()
@@ -184,7 +184,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; add region to search ring to start a search with region quickly
-(if GNU 
+(if GNU
     ;; gnu emacs has fewer args to buffer-substring, and needs to explicitly deactivate mark
     (add-hook 'isearch-mode-hook '(lambda() "add region to search-ring" (interactive)
                                     (if (region-active-p)
@@ -194,30 +194,35 @@
                                   (if (region-active-p)
                                       (setq search-ring (cons (buffer-substring (region-beginning) (region-end) nil) search-ring))))))
 
-(defun scroll-down-keep-cursor () 
-   ;; Scroll the text one line down while keeping the cursor 
-   (interactive) 
-   (scroll-down 1)) 
+(defun scroll-down-keep-cursor ()
+   ;; Scroll the text one line down while keeping the cursor
+   (interactive)
+   (scroll-down 1))
 
-(defun scroll-up-keep-cursor () 
-   ;; Scroll the text one line up while keeping the cursor 
-   (interactive) 
-   (scroll-up 1)) 
+(defun scroll-up-keep-cursor ()
+   ;; Scroll the text one line up while keeping the cursor
+   (interactive)
+   (scroll-up 1))
 
 ;Bind the functions to the /-key and the *-key (on the numeric keypad) with:
-(global-set-key (kbd "C-<prior>") 'scroll-down-keep-cursor) 
-(global-set-key (kbd "C-<next>") 'scroll-up-keep-cursor) 
+(global-set-key (kbd "C-<prior>") 'scroll-down-keep-cursor)
+(global-set-key (kbd "C-<next>") 'scroll-up-keep-cursor)
 
 ; set correct path to find/grep on windows with cygwin
 (when (or (eq system-type 'windows-nt) (eq system-type 'msdos))
   (setenv "PATH" (concat "c:\\cygwin\\bin;" (getenv "PATH")))
-  (setq find-program "c:\\cygwin\\bin\\find.exe"))
+  (setq find-program "c:\\cygwin\\bin\\find.exe")
+  ; try to improve slow performance on windows.
+  (setq w32-get-true-file-attributes nil))
 
-(setq grep-command "find ./ | grep -v \"\\.svn/\\|/doc/\\|/vc/\\|/doxy\\|~$\\|#$\" | xargs grep -n ")
+(setq grep-command "find ./ | grep -v \"\\.svn/\\|.git/\\|/doc/\\|/vc/\\|/doxy\\|~$\\|#$\" | xargs grep -n ")
 
 ;prevent emacs from spliting windows by itself
 (setq split-height-threshold nil
       split-width-threshold nil)
+
+(if (string-equal system-type "darwin")
+    (setq mac-command-modifier 'meta))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -237,7 +242,7 @@
   (setq cperl-extra-newline-before-brace t)
   ;(set-face-background 'cperl-array-face "wheat")
   ;(set-face-background 'cperl-hash-face "wheat")
-  )
+)
 
 ;;;;;;;;;;;;;;;;;;;; BASH ;;;;;;;;;;;;;;;;;;;;
 
@@ -317,7 +322,7 @@ refer for `sh-mode'.  It is automatically added to
              fume-menubar-menu-location nil
              fume-buffer-name "*Function List*"
              fume-no-prompt-on-valid-default nil)
-       ))
+))
 
 ; (if (file-readable-p "~/.emacs.d/selective_undo_xmas.el")
 ;     (load-file "~/.emacs.d/selective_undo_xmas.el"))
@@ -328,14 +333,14 @@ refer for `sh-mode'.  It is automatically added to
 
 ; macros
 ; (defalias 'logerr
-;   (read-kbd-macro "TAB LOG_ER( S-SPC LEVEL, SPC \"Err: SPC \" SPC );"))
+;   (read-kbd-macro "TAB LOG_ER(S-SPC LEVEL, SPC \"Err: SPC \" SPC);"))
 ; (defalias 'logwar (read-kbd-macro
-; "TAB LOG_EA 2*<backspace> WA( SPC level 5*<backspace> LEVEL. <backspace> , SPC \"wA 2*<backspace> w <backspace> War: SPC \" SPC );"))
+; "TAB LOG_EA 2*<backspace> WA(SPC level 5*<backspace> LEVEL. <backspace> , SPC \"wA 2*<backspace> w <backspace> War: SPC \" SPC);"))
 ; (defalias 'loginf (read-kbd-macro
-; "TAB lo 2*<backspace> K <backspace> LOG_IN* <backspace> ( SPC LEVEL, SPC : <backspace> \"ING 2*<backspace> nf: SPC \" SPC _ <backspace> );"))
+; "TAB lo 2*<backspace> K <backspace> LOG_IN* <backspace> (SPC LEVEL, SPC : <backspace> \"ING 2*<backspace> nf: SPC \" SPC _ <backspace>);"))
 ; (defalias 'logdbg (read-kbd-macro
-; "TAB LOG_IN( SPC LEVEL10, SPC \"DEBUG: SPC \" SPC _ <backspace> );"))
-; 
+; "TAB LOG_IN(SPC LEVEL10, SPC \"DEBUG: SPC \" SPC _ <backspace>);"))
+;
 ; (defalias 'header-shell (read-kbd-macro
 ; ;(concat "#!/bin/bash RET #/// SPC \\file SPC RET #/// SPC \\brief RET # RET # SPC Created SPC by SPC Valeriu SPC Goldberger SPC on SPC "
 ; (concat "#!/bin/bash RET  RET #/// SPC \\file SPC  SPC "
@@ -377,7 +382,7 @@ refer for `sh-mode'.  It is automatically added to
 # Created by Valeriu Goldberger on "
            (format-time-string "%D SPC %R" (current-time))
            "\n#\n"
-  )))
+)))
 
 (defun vg-setter-c (fctName varName varType)
   "…"
@@ -392,6 +397,11 @@ refer for `sh-mode'.  It is automatically added to
       (insert varName " = x;\n")
       (insert "strncpy(" varName ", x, sizeof(" varName ");\n"))
   (insert "}\n"))
+
+; macro to apply google style over ValG style.
+(fset 'vg-apply-google-style
+      (lambda (&optional arg) "Keyboard macro." (interactive "p")
+        (kmacro-exec-ring-item (quote ([134217788 201326629 40 32 43 return 40 return 33 134217788 201326629 32 43 41 return 41 return 33 134217788 134217765 32 105 102 40 return 32 105 102 32 40 return 33 134217788 201326629 32 119 104 105 108 101 40 return 32 119 104 105 108 101 32 40 return 33 134217788 201326629 32 102 111 114 40 return 32 102 111 114 32 40 return 33 134217788 201326629 32 115 119 105 116 99 104 40 return 32 115 119 105 116 99 104 32 40 return 33 134217788 201326629 92 40 94 32 42 91 94 47 32 93 46 42 92 41 17 10 32 42 123 17 10 return 92 49 32 123 17 10 return 33 134217788 201326629 32 43 36 return return 33 134217788] 0 "%d")) arg)))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -459,14 +469,14 @@ refer for `sh-mode'.  It is automatically added to
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- )
+)
 
 ;; VG: use MELPA repository
 (require 'package)
 (add-to-list 'package-archives
   '("melpa" . "http://melpa.milkbox.net/packages/") t)
 
-;(add-to-list 'package-archives 
+;(add-to-list 'package-archives
 ;	     '("marmalade" . "http://marmalade-repo.org/packages/"))
 
 (package-initialize)
@@ -479,7 +489,7 @@ refer for `sh-mode'.  It is automatically added to
     (color-theme-initialize)
     (color-theme-xemacs)
     ;(color-theme-ramangalahy)
-    ))
+))
 (put 'upcase-region 'disabled nil)
 
 ;; to build gtags DB, run gtags
@@ -493,15 +503,15 @@ refer for `sh-mode'.  It is automatically added to
   (interactive)
   (if (not (= 0 (call-process "global" nil nil nil " -p"))) ; tagfile doesn't exist?
     (let ((olddir default-directory)
-          (topdir (read-directory-name  
+          (topdir (read-directory-name
                     "gtags: top of source tree:" default-directory)))
       (cd topdir)
       (shell-command "gtags && echo 'created tagfile'")
-      (cd olddir)) ; restore   
+      (cd olddir)) ; restore
     ;;  tagfile already exists; update it
     (shell-command "global -u && echo 'updated tagfile'")))
 
-(add-hook 'gtags-mode-hook 
+(add-hook 'gtags-mode-hook
   (lambda()
     (local-set-key (kbd "M-.") 'gtags-find-tag)   ; find a tag, also M-.
     (local-set-key (kbd "M-*") 'gtags-pop-stack)   ; find a tag, also M-.
@@ -522,7 +532,7 @@ refer for `sh-mode'.  It is automatically added to
 ;; (setq c-mode-hook
 ;;          '(lambda ()
 ;;              (gtags-mode 1)
-;;      ))
+;;))
 
 ;; installed package auto-complete
 ; start auto-complete with emacs
@@ -554,7 +564,7 @@ refer for `sh-mode'.  It is automatically added to
       (custom-set-variables
        '(flymake-google-cpplint-command "c:/Python27/Scripts/cpplint.bat")))
   (flymake-google-cpplint-load)
-  )
+)
 (add-hook 'c-mode-hook 'my:flymake-google-init)
 (add-hook 'c++-mode-hook 'my:flymake-google-init)
 
@@ -564,11 +574,11 @@ refer for `sh-mode'.  It is automatically added to
 ;;; (semantic-mode 1)
 ;;; ; let's define a function which adds semantic as a suggestion backend to auto complete
 ;;; ; and hook this function to c-mode-common-hook
-;;; (defun my:add-semantic-to-autocomplete() 
+;;; (defun my:add-semantic-to-autocomplete()
 ;;;   (add-to-list 'ac-sources 'ac-source-semantic)
-;;; )
+;;;)
 ;;; (add-hook 'c-mode-common-hook 'my:add-semantic-to-autocomplete)
-; turn on ede mode 
+; turn on ede mode
 (global-ede-mode 1)
 
 ;; http://cedet.sourceforge.net/intellisense.shtml
@@ -582,18 +592,5 @@ refer for `sh-mode'.  It is automatically added to
 ;; ; turn on automatic reparsing of open buffers in semantic
 ;; (global-semantic-idle-scheduler-mode 1)
 
-
 ;; slow emacs... looking for solutions
 (setq vc-handled-backends nil)
-; try to improve slow performance on windows.
-(setq w32-get-true-file-attributes nil)
-
-; macro to apply google style over ValG style.
-
-(fset 'vapply-google-style
-      (lambda (&optional arg) "Keyboard macro." (interactive "p")
-        (kmacro-exec-ring-item (quote ([201326629 40 32 43 return 40 return 33 134217788 201326629 32 43 41 return 41 return 33 134217788 134217765 32 105 102 40 return 32 105 102 32 40 return 33 134217788 201326629 32 119 104 105 108 101 40 return 32 119 104 105 108 101 32 40 return 33 134217788 201326629 32 102 111 114 40 return 32 102 111 114 32 40 return 33 134217788 201326629 32 115 119 105 116 99 104 40 return 32 115 119 105 116 99 104 32 40 return 33 134217788 201326629 92 40 94 32 42 91 94 47 32 93 46 42 92 41 17 10 32 42 123 17 10 return 92 49 32 123 17 10 return 33 134217788] 0 "%d")) arg)))
-; problem: if { follows a line with comment, it moves it at the end of the comment
-;(fset 'vapply-google-style
-;      (lambda (&optional arg) "Keyboard macro." (interactive "p")
-;        (kmacro-exec-ring-item (quote ([201326629 40 32 43 return 40 return 33 134217788 201326629 32 43 41 return 41 return 33 134217788 134217765 32 105 102 40 return 32 105 102 32 40 return 33 134217788 201326629 32 119 104 105 108 101 40 return 32 119 104 105 108 101 32 40 return 33 134217788 201326629 32 102 111 114 40 return 32 102 111 114 32 40 return 33 134217788 201326629 32 115 119 105 116 99 104 40 return 32 115 119 105 116 99 104 32 40 return 33 134217788 201326629 17 10 32 42 123 17 10 return 32 123 17 10 return 33 134217788] 0 "%d")) arg)))
