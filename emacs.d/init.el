@@ -222,7 +222,9 @@
       split-width-threshold nil)
 
 (if (string-equal system-type "darwin")
-    (setq mac-command-modifier 'meta))
+    (setq mac-command-modifier 'meta
+          exec-path (append exec-path '("/usr/local/bin"))
+          ggtags-executable-directory "/usr/local/bin"))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -495,7 +497,10 @@ refer for `sh-mode'.  It is automatically added to
 ;; to build gtags DB, run gtags
 ;; load, use GNU global; gtags-pop-stack's shorcut doesn't work in
 ;; gtags selection buffer
-(setq load-path (cons "~/../bin/global/share/gtags" load-path))
+;(if (string-equal system-type "darwin")
+;    (setq load-path (cons "/usr/local/bin" load-path))
+(unless (string-equal system-type "darwin")
+    (setq load-path (cons "~/../bin/global/share/gtags" load-path)))
 (autoload 'gtags-mode "gtags" "" t)
 
 (defun djcb-gtags-create-or-update ()
