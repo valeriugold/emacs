@@ -215,7 +215,7 @@
   ; try to improve slow performance on windows.
   (setq w32-get-true-file-attributes nil))
 
-(setq grep-command "find ./ | grep -v \"\\.svn/\\|.git/\\|/doc/\\|/vc/\\|/doxy\\|~$\\|#$\" | xargs grep -n ")
+(setq grep-command "find ./ -type f | grep -v \"\\.svn/\\|test/\\|\\.dep\\|\\.obj\\|\\.exe\\|\\.git/\\|/doc/\\|/vc/\\|/doxy\\|~$\\|#$\" | xargs grep -n ")
 
 ;prevent emacs from spliting windows by itself
 (setq split-height-threshold nil
@@ -594,3 +594,4 @@ refer for `sh-mode'.  It is automatically added to
 
 ;; slow emacs... looking for solutions
 (setq vc-handled-backends nil)
+(put 'downcase-region 'disabled nil)
