@@ -623,8 +623,13 @@ refer for `sh-mode'.  It is automatically added to
 
 (when window-system (set-exec-path-from-shell-PATH))
 
-(setenv "GOPATH" "/Users/valeriug/dev/go")
-(add-to-list 'exec-path "/Users/valeriug/dev/go/bin")
+(if (string-equal system-type "darwin")
+    ((setenv "GOPATH" "/Users/valeriug/dev/go")
+     (add-to-list 'exec-path "/Users/valeriug/dev/go/bin"))
+  (when (or (eq system-type 'windows-nt) (eq system-type 'msdos))
+    (setenv "GOPATH" "C:\\valeriu\\go")
+    (add-to-list 'exec-path "C:\\valeriu\\go\\bin")
+    ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
