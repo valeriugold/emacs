@@ -64,6 +64,11 @@
 (global-set-key (kbd "<S-f7>") '(lambda() "insert register 7" (interactive) (insert-register '7 nil)))
 (global-set-key (kbd "<C-f8>") '(lambda() "copy to register 8" (interactive) (copy-to-register '8 (region-beginning) (region-end) nil)(message "cp reg %s word %s %s" '8 (region-beginning) (region-end))))
 (global-set-key (kbd "<S-f8>") '(lambda() "insert register 8" (interactive) (insert-register '8 nil)))
+(if (string-equal system-type "darwin")
+    ;; copy ctrl-insert
+    (global-set-key (kbd "<C-help>") 'clipboard-kill-ring-save)
+    ;; paste shift-insert ... shift does not register with insert and help just starts...help
+    (global-set-key (kbd "<S-help>") 'clipboard-yank))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -215,14 +220,19 @@
   ; try to improve slow performance on windows.
   (setq w32-get-true-file-attributes nil))
 
-(setq grep-command "find ./ -type f | grep -v \"\\.svn/\\|test/\\|\\.dep\\|\\.obj\\|\\.exe\\|\\.git/\\|/doc/\\|/vc/\\|/doxy\\|~$\\|#$\" | xargs grep -n ")
+(unless (string-equal system-type "darwin")
+	(setq grep-command "find ./ -type f | grep -v \"\\.svn/\\|test/\\|\\.dep\\|\\.obj\\|\\.exe\\|\\.git/\\|/doc/\\|/vc/\\|/doxy\\|~$\\|#$\" | xargs grep -n ")
+	;(setq grep-command "find ./ | grep -v \"\\.svn/\\|.git/\\|/doc/\\|/vc/\\|/doxy\\|~$\\|#$\" | xargs grep -n ")
+)
 
 ;prevent emacs from spliting windows by itself
 (setq split-height-threshold nil
       split-width-threshold nil)
 
 (if (string-equal system-type "darwin")
-    (setq mac-command-modifier 'meta))
+    (setq mac-command-modifier 'meta
+          exec-path (append exec-path '("/usr/local/bin"))
+          ggtags-executable-directory "/usr/local/bin"))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -495,7 +505,10 @@ refer for `sh-mode'.  It is automatically added to
 ;; to build gtags DB, run gtags
 ;; load, use GNU global; gtags-pop-stack's shorcut doesn't work in
 ;; gtags selection buffer
-(setq load-path (cons "~/../bin/global/share/gtags" load-path))
+;(if (string-equal system-type "darwin")
+;    (setq load-path (cons "/usr/local/bin" load-path))
+(unless (string-equal system-type "darwin")
+    (setq load-path (cons "~/../bin/global/share/gtags" load-path)))
 (autoload 'gtags-mode "gtags" "" t)
 
 (defun djcb-gtags-create-or-update ()
@@ -595,3 +608,117 @@ refer for `sh-mode'.  It is automatically added to
 ;; slow emacs... looking for solutions
 (setq vc-handled-backends nil)
 (put 'downcase-region 'disabled nil)
+
+;;;;;;;;;;;;;;; go Modes
+;; http://arenzana.org/2015/Emacs-for-Go/
+
+(defun set-exec-path-from-shell-PATH ()
+  (let ((path-from-shell (replace-regexp-in-string
+                          "[ \t\n]*$"
+                          ""
+                          (shell-command-to-string "$SHELL --login -i -c 'echo $PATH'"))))
+    (setenv "PATH" path-from-shell)
+    (setq eshell-path-env path-from-shell) ; for eshell users
+    (setq exec-path (split-string path-from-shell path-separator))))
+
+(when window-system (set-exec-path-from-shell-PATH))
+
+(setenv "GOPATH" "/Users/valeriug/dev/go")
+(add-to-list 'exec-path "/Users/valeriug/dev/go/bin")
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;Load package-install sources
+(when (>= emacs-major-version 24)
+  (require 'package)
+  (add-to-list
+   'package-archives
+   '("melpa" . "http://melpa.org/packages/")
+   t)
+  (package-initialize))
+
+(defvar my-packages
+  '(;;;; Go shit
+    go-mode
+    go-eldoc
+    go-autocomplete
+
+        ;;;;;; Markdown
+    ;; markdown-mode
+
+        ;;;;;; Javascript
+    json-mode
+        ;;;;;; Env
+    ;; project-explorer
+    ;; smooth-scroll
+    ;; buffer-move
+    ;; window-number
+    )
+  "My packages!")
+
+;; fetch the list of packages available
+(unless package-archive-contents
+  (package-refresh-contents))
+
+;; install the missing packages
+(dolist (package my-packages)
+  (unless (package-installed-p package)
+    (package-install package)))
+    
+;;Load Go-specific language syntax
+(defun go-mode-setup ()
+  (go-eldoc-setup))
+
+(add-hook 'go-mode-hook 'go-mode-setup)
+
+;;Format before saving
+(defun go-mode-setup ()
+  (go-eldoc-setup)
+  (add-hook 'before-save-hook 'gofmt-before-save))
+(add-hook 'go-mode-hook 'go-mode-setup)
+
+;;Goimports
+(defun go-mode-setup ()
+  (go-eldoc-setup)
+  (setq gofmt-command "goimports")
+  (add-hook 'before-save-hook 'gofmt-before-save))
+(add-hook 'go-mode-hook 'go-mode-setup)
+
+;;Godef, shows function definition when calling godef-jump
+(defun go-mode-setup ()
+  (go-eldoc-setup)
+  (setq gofmt-command "goimports")
+  (add-hook 'before-save-hook 'gofmt-before-save)
+  (local-set-key (kbd "M-.") 'godef-jump))
+(add-hook 'go-mode-hook 'go-mode-setup)
+
+;;Custom Compile Command
+(defun go-mode-setup ()
+  (setq compile-command "go build -v && go test -v && go vet && golint && errcheck")
+  ;; (define-key (current-local-map) "\C-c\C-c" 'compile)
+  (go-eldoc-setup)
+  (setq gofmt-command "goimports")
+  (add-hook 'before-save-hook 'gofmt-before-save)
+  (local-set-key (kbd "M-.") 'godef-jump))
+(add-hook 'go-mode-hook 'go-mode-setup)
+
+;;Load auto-complete
+(ac-config-default)
+(require 'auto-complete-config)
+(require 'go-autocomplete)
+
+(add-to-list 'load-path (concat (getenv "GOPATH")  "/src/github.com/golang/lint/misc/emacs"))
+(require 'golint)
+
+;; ;;Project Explorer
+;; (require 'project-explorer)
+;; (global-set-key (kbd "M-e") 'project-explorer-toggle)
+
+(with-eval-after-load 'go-mode
+   (require 'go-autocomplete))
+
+;; add support for web mode for .tmpl files
+(require 'web-mode)
+(add-to-list 'auto-mode-alist '("\\.tmpl$" . web-mode))
