@@ -22,6 +22,31 @@ There are two things you can do about this warning:
     (add-to-list 'package-archives (cons "gnu" (concat proto "://elpa.gnu.org/packages/")))))
 (package-initialize)
 
+;; If there are no archived package contents, refresh them
+(when (not package-archive-contents)
+  (package-refresh-contents))
+
+;; Installs packages
+;;
+;; myPackages contains a list of package names
+(defvar myPackages
+  '(better-defaults                 ;; Set up some better Emacs defaults
+    elpy                            ;; Emacs Lisp Python Environment
+    flycheck                        ;; On the fly syntax checking
+    py-autopep8                     ;; Run autopep8 on save
+    blacken                         ;; Black formatting on save
+    material-theme                  ;; Theme
+    )
+  )
+
+;; Scans the list in myPackages
+;; If the package listed is not already installed, install it
+(mapc #'(lambda (package)
+          (unless (package-installed-p package)
+            (package-install package)))
+      myPackages)
+
+;(load-theme 'material t)            ;; Load material theme
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -282,13 +307,6 @@ refer for `sh-mode'.  It is automatically added to
         sh-indent-comment t))
 (add-hook 'sh-mode-hook 'valg-setup-sh-mode)
 
-;;;;;;;;;;;;;;;;;;;; PYTHON ;;;;;;;;;;;;;;;;;;;;
-
-(if (file-readable-p "C:\\Python27\\python.exe")
-    ;; (setq py-python-command "c:\\cygwin\\bin\\python2.6.exe")
-    (setq py-python-command "C:\\Python27\\python.exe"))
-
-
 ;;;;;;;;;;;;;;;;;;;; JASON ;;;;;;;;;;;;;;;;;;;;
 (autoload 'js2-mode "js2" nil t)
 (add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
@@ -381,18 +399,13 @@ refer for `sh-mode'.  It is automatically added to
 ; perform default config for auto-complete
 (require 'auto-complete-config)
 ;;; VG: uncommenting the bellow will allow nice autocompletion menus, but very slow...
-(ac-config-default)
+;(ac-config-default)
 ;;; VG: bellow is supposed to make autocomplete faster, but it doesn't
 ;(ac-flyspell-workaround)
 
 ;; installed package yasnippet
 (require 'yasnippet)
 (yas-global-mode 1)
-
-;; installed iedit
-;; with iedit-mode you can modify all ocurrence of a variable at the same time
-;; Fix iedit bug in Mac
-; (define-key global-map (kbd "C-c ;") 'iedit-mode)
 
 ;; installed flymake-google-cpplint-load
 ;; copied cpplint
@@ -426,7 +439,7 @@ refer for `sh-mode'.  It is automatically added to
 
 
 ;;; golang
-    
+
 ;;Load Go-specific language syntax
 ;;For gocode use https://github.com/mdempsky/gocode
 
@@ -476,7 +489,24 @@ refer for `sh-mode'.  It is automatically added to
 (setq compilation-scroll-output t)
 
 
+;;; python
 
+;; Enable elpy
+(elpy-enable)
+
+;; Enable Flycheck
+(when (require 'flycheck nil t)
+  (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
+  (add-hook 'elpy-mode-hook 'flycheck-mode))
+
+;; Enable autopep8
+(require 'py-autopep8)
+(add-hook 'elpy-mode-hook 'py-autopep8-enable-on-save)
+
+;; for pdb, create these files: (https://stackoverflow.com/questions/9167614/python-mode-in-emacs-no-such-file-or-directory-pdb)
+;; windows: pdb.bat: python -u -m pdb %1
+;; linux/mac: #!/bin/sh
+;;            exec python -m pdb "$@"
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -490,10 +520,10 @@ refer for `sh-mode'.  It is automatically added to
  '(beacon-color "#d33682")
  '(company-quickhelp-color-background "#4F4F4F")
  '(company-quickhelp-color-foreground "#DCDCCC")
- '(custom-enabled-themes (quote (tsdh-dark)))
+ '(custom-enabled-themes (quote (material)))
  '(custom-safe-themes
    (quote
-    ("5a45c8bf60607dfa077b3e23edfb8df0f37c4759356682adf7ab762ba6b10600" "bdb4509c123230a059d89fc837c40defdecee8279c741b7f060196b343b2d18d" "ed17fef69db375ae1ced71fdc12e543448827aac5eb7166d2fd05f4c95a7be71" "6515fcc302292f29a94f6ac0c5795c57a396127d5ea31f37fc5f9f0308bbe19f" "54f2d1fcc9bcadedd50398697618f7c34aceb9966a6cbaa99829eb64c0c1f3ca" "8db4b03b9ae654d4a57804286eb3e332725c84d7cdab38463cb6b97d5762ad26" "4aee8551b53a43a883cb0b7f3255d6859d766b6c5e14bcb01bed572fcbef4328" "4cf3221feff536e2b3385209e9b9dc4c2e0818a69a1cdb4b522756bcdf4e00a4" default)))
+    ("732b807b0543855541743429c9979ebfb363e27ec91e82f463c91e68c772f6e3" "a24c5b3c12d147da6cef80938dca1223b7c7f70f2f382b26308eba014dc4833a" "5a45c8bf60607dfa077b3e23edfb8df0f37c4759356682adf7ab762ba6b10600" "bdb4509c123230a059d89fc837c40defdecee8279c741b7f060196b343b2d18d" "ed17fef69db375ae1ced71fdc12e543448827aac5eb7166d2fd05f4c95a7be71" "6515fcc302292f29a94f6ac0c5795c57a396127d5ea31f37fc5f9f0308bbe19f" "54f2d1fcc9bcadedd50398697618f7c34aceb9966a6cbaa99829eb64c0c1f3ca" "8db4b03b9ae654d4a57804286eb3e332725c84d7cdab38463cb6b97d5762ad26" "4aee8551b53a43a883cb0b7f3255d6859d766b6c5e14bcb01bed572fcbef4328" "4cf3221feff536e2b3385209e9b9dc4c2e0818a69a1cdb4b522756bcdf4e00a4" default)))
  '(fci-rule-color "#383838")
  '(flycheck-color-mode-line-face-to-color (quote mode-line-buffer-id))
  '(flymake-google-cpplint-linelength "120")
@@ -504,7 +534,7 @@ refer for `sh-mode'.  It is automatically added to
     ("#CC9393" "#DFAF8F" "#F0DFAF" "#7F9F7F" "#BFEBBF" "#93E0E3" "#94BFF3" "#DC8CC3")))
  '(package-selected-packages
    (quote
-    (groovy-mode flymake-json json-navigator nofrils-acme-theme highlight-indent-guides iedit json-snatcher terraform-mode web-mode yaml-imenu yaml-mode zenburn-theme json-mode nhexl-mode yasnippet auto-complete deferred go-autocomplete go-eldoc go-mode go-playground go-playground-cli golint gotest color-theme color-theme-sanityinc-solarized color-theme-solarized flycheck flycheck-yamllint flymake-cursor flymake-easy flymake-google-cpplint flymake-yaml ggtags epoch-view)))
+    (elpy better-defaults material-theme groovy-mode flymake-json json-navigator nofrils-acme-theme highlight-indent-guides iedit json-snatcher terraform-mode web-mode yaml-imenu yaml-mode zenburn-theme json-mode nhexl-mode yasnippet auto-complete deferred go-autocomplete go-eldoc go-mode go-playground go-playground-cli golint gotest color-theme color-theme-sanityinc-solarized color-theme-solarized flycheck flycheck-yamllint flymake-cursor flymake-easy flymake-google-cpplint flymake-yaml ggtags epoch-view)))
  '(pdf-view-midnight-colors (quote ("#DCDCCC" . "#383838")))
  '(vc-annotate-background "#2B2B2B")
  '(vc-annotate-color-map
