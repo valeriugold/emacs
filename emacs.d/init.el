@@ -503,7 +503,15 @@ refer for `sh-mode'.  It is automatically added to
 (require 'py-autopep8)
 (add-hook 'elpy-mode-hook 'py-autopep8-enable-on-save)
 
-;; for pdb, create these files: (https://stackoverflow.com/questions/9167614/python-mode-in-emacs-no-such-file-or-directory-pdb)
+;; VG: change some bindings so they won't hijack existing ones
+(define-key elpy-mode-map (kbd "<C-return>") nil)
+(define-key elpy-mode-map (kbd "<S-return>") nil)
+(define-key elpy-mode-map (kbd "<M-right>") nil)
+(define-key elpy-mode-map (kbd "<M-left>") nil)
+(define-key elpy-mode-map (kbd "C-c <M-right>") 'elpy-nav-indent-shift-right)
+(define-key elpy-mode-map (kbd "C-c <M-left>") 'elpy-nav-indent-shift-left)
+
+;; VG: for pdb, create these files: (https://stackoverflow.com/questions/9167614/python-mode-in-emacs-no-such-file-or-directory-pdb)
 ;; windows: pdb.bat: python -u -m pdb %1
 ;; linux/mac: #!/bin/sh
 ;;            exec python -m pdb "$@"
